@@ -10,6 +10,7 @@ the open `SKILL.md` format and can be installed with
 | --- | --- | --- |
 | `defuddle` | Extracting the useful content from a webpage or HTML file | Requires the `defuddle` CLI. Reads pages and local files. |
 | `linear-tickets` | Reading a Linear issue and preparing a Git worktree | Requires an authenticated Linear MCP connection. Creates a local branch or worktree only after confirming the setup. |
+| `worktrunk` | Managing and navigating git worktrees, and running parallel AI agents in worktrees | Requires the `wt` CLI. Creates, lists, removes, and merges worktrees. |
 | `write-good-commit-messages` | Writing a Git commit message | Reads project conventions and Git history. |
 | `write-naturally` | Revising prose for clarity, specificity, and an intended voice | Does not imitate a named person or try to evade AI detection. |
 
