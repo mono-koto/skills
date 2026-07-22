@@ -13,6 +13,7 @@ the open `SKILL.md` format and can be installed with
 | `worktrunk` | Managing and navigating git worktrees, and running parallel AI agents in worktrees | Requires the `wt` CLI. Creates, lists, removes, and merges worktrees. |
 | `write-good-commit-messages` | Writing a Git commit message | Reads project conventions and Git history. |
 | `write-naturally` | Revising prose for clarity, specificity, and an intended voice | Does not imitate a named person or try to evade AI detection. |
+| `write-simply` | Cutting inflated or overly polished prose down to its point | Produces shorter, more literal writing without changing its meaning. |
 
 ## Install
 
