@@ -7,14 +7,12 @@ description: Use when writing or reviewing tests, deciding if a test is worth wr
 
 ## Stance
 
-Write the test when the logic is non-obvious. Write it when silent
-failure is costly. Write it when you are about to change code you do not
-understand. Write it when the test is cheaper than the manual check you
-would otherwise repeat.
+Write the test when the logic is non-obvious, silent failure is
+costly, you are about to change code you do not understand, or the test
+is cheaper than the manual check you would otherwise repeat.
 
-Skip it when the code is a thin pass-through. Skip it when the type
-system already covers it. Skip it when the test just restates the
-implementation line by line.
+Skip it when the code is a thin pass-through, the type system already
+covers it, or the test just restates the implementation line by line.
 
 This skill scopes the test-driven-development skill. It does not repeal
 it. When this skill says a test is not worth writing, TDD does not
