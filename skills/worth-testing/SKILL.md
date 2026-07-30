@@ -1,6 +1,6 @@
 ---
 name: worth-testing
-description: Use when writing or reviewing tests. Presses the agent to skip tests that do not earn their place, and to delete the ones already there that do not.
+description: Use when writing or reviewing tests, deciding if a test is worth writing, necessary, helpful, or a useful addition, judging whether a test justifies its cost, or identifying and deleting unnecessary tests. Also use when a suite feels bloated, tests fail on refactors, or a test was added for completeness or coverage.
 ---
 
 # Worth Testing
@@ -20,6 +20,22 @@ This skill scopes the test-driven-development skill. It does not repeal
 it. When this skill says a test is not worth writing, TDD does not
 override it. When this skill says a test is worth writing, write it
 test-first.
+
+## Costs
+
+A test is code you must read, run, review, and maintain. Count these
+against every test before you write it.
+
+- More code to read and review.
+- Slower CI. Higher compute cost.
+- More context tokens every time an agent reads the suite.
+- Maintenance. A test coupled to the code fails on every refactor.
+- Flakiness. Intermittent failures waste triage time and erode trust.
+- False confidence. A green test that catches nothing hides the gap.
+- Noise. Failures that are not bugs teach people to ignore the red bar.
+- Drag. Every behavior-preserving edit costs more to land.
+
+A useful test pays these costs back. A useless test never does.
 
 ## The gate
 
