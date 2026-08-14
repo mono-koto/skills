@@ -3,23 +3,19 @@ name: write-good-commit-messages
 description: Use to write a Git commit message. Defaults to a concise one-line subject and defers to documented or established project conventions.
 ---
 
-# Write Good Commit Messages
+A commit message should let someone reading `git log` understand what changed and why without opening the diff. 
 
-A commit message should let someone reading `git log` understand what changed
-and why without opening the diff. Optimize for the reader.
+Your goal is to optimize for reducing the time and thinking a human reader needs to understand the change. That's it.
 
 ## Check the project style first
 
-Before writing a message, look for a documented convention in `CONTRIBUTING.md`,
-`COMMITS.md`, `.gitmessage`, the README, or repository instructions. Then inspect
-recent commit subjects:
+Before writing a message, look for a documented convention in `CONTRIBUTING.md`, `COMMITS.md`, `.gitmessage`, the README, or repository instructions. Then inspect recent commit subjects:
 
 ```sh
 git log -20 --pretty=format:'%s'
 ```
 
-Project style wins. Match a consistent convention such as Conventional Commits
-or a ticket prefix when one exists.
+Project style wins. Match a consistent convention such as Conventional Commits or a ticket prefix when one exists.
 
 ## Default to one line
 
@@ -55,6 +51,7 @@ switch session store to redis
 
 ## Common mistakes
 
+- Long single paragraph body that no one will read.
 - Adding a body that only repeats the subject.
 - Narrating the diff one file at a time.
 - Mixing moods such as `add`, `added`, and `adds`.
