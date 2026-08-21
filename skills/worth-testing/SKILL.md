@@ -5,135 +5,64 @@ description: Use when writing or reviewing tests, deciding whether a test is wor
 
 # Worth Testing
 
-## Stance
+The default answer is no. Add a test only when it protects important behavior from a plausible production mistake that could otherwise pass unnoticed.
 
-Most tests an agent proposes are not worth writing. The default is no.
+Tests cost time to read, run, review, maintain, and debug. If a compiler, static check, existing test, or cheap manual check catches the same mistake, skip the test.
 
-A test earns its place only by clearing the gate below. The gate is deliberately hard to pass. When in doubt, skip the test. If it is mostly not worth it, it is not worth it.
+## Remove what tools already catch
 
-Write a test when the logic is non-obvious, a silent failure would be costly, you are changing code you do not understand, or the test costs less than repeating a manual check.
+Before writing a test, exclude bugs already prevented by the compiler, type system, linter, or other static checks.
 
-Skip it when the code is a thin pass-through, the type system already covers it, or the test merely repeats the implementation.
+Do not test:
 
-This skill scopes test-driven development. It does not repeal it. TDD does not override a decision that a test is not worth writing. When a test clears the gate, write it test-first.
+- Changed signatures, arity, or parameter types.
+- Renamed, removed, or mistyped fields.
+- Missing exhaustive-match cases.
+- Ownership, lifetime, or nullability errors already checked.
+- Anything that already fails a static check.
 
-## Costs
+A dependency API change usually calls for recompiling, not adding a test. Test semantic mistakes that survive compilation, such as a reversed boolean, swapped same-typed arguments, wrong status-code interpretation, or incorrect edge-case logic.
 
-A test is code you must read, run, review, and maintain. Count these costs before writing it.
+If a richer type can prevent the mistake everywhere, prefer the type to a test.
 
-- More code to read and review.
-- Slower CI and higher compute cost.
-- More context tokens whenever an agent reads the suite.
-- Maintenance when the test is coupled to implementation.
-- Flakiness that wastes triage time and erodes trust.
-- False confidence from a green test that guards the wrong code.
-- Noise that teaches people to ignore failures.
-- Extra work for every behavior-preserving edit.
+## The four-question gate
 
-A useful test pays these costs back. A useless test does not.
+Before writing a test, answer all four questions for that test case:
 
-## Before the gate: subtract the compiler
+1. **What specific production change would make it fail?** Name the edit, not a category. “Invert `result.OK`” is specific; “break validation” is not.
 
-Do not call a compile-time error a bug that needs a test. First remove everything the language, type checker, linter, or static checks already prevent.
+2. **Could a contributor plausibly make that mistake?** Consider inverted conditions, off-by-one errors, swapped same-typed arguments, dropped errors, and subtle logic errors. If you have to invent an unlikely mistake, stop.
 
-Examples include:
+3. **Does the test intercept that failure path?** Trace the mistake from cause to observable consequence. Test the layer where the risk occurs. A pure-function test does not protect whether the caller invokes it, passes the right dependency, or propagates its error.
 
-- Changed function signatures, arity, or parameter types.
-- Renamed, retyped, or removed struct fields.
-- Missing cases in an exhaustive match.
-- Nil, ownership, and lifetime errors in languages that track them.
-- Anything a linter or static check fails in CI.
+4. **Would this bug be obvious without the test?** Ask whether a normal run would reveal the named failure clearly. Loud failures need less testing. Focus on wrong results, quietly corrupted data, missing side effects, and work that silently does not happen.
 
-This matters most during dependency upgrades. “The library changed its API” is an argument for recompiling, not for adding a test. Ask what survives the compiler. That may include a reversed boolean, a field read from the wrong sibling, or a misread status code. Only those semantic failures belong in question 1.
+An inverted guard can make normal input fail immediately, so a normal-path test adds little for that mistake. The same inversion can let invalid input through. Test that rare path when accepting it could stay hidden or cause harm.
 
-If richer types would eliminate the bug, prefer them to a test. Use a sum type instead of a boolean or a newtype instead of a bare string. The type is checked everywhere. The test is checked in one place.
+If any answer is no, skip the test. Apply the gate independently to each test case. If it passes, write the test first.
 
-## The gate
+## Assert behavior
 
-Answer all four questions in writing before writing a test. Do the same for every test in a diff you review. Write the answers in the PR comment, commit message, or response to the user. Unwritten reasoning is easy to fake.
+Assert the contract that users or callers can observe, not the implementation.
 
-**1. What production change would make this test fail?**
+Remove assertions that would fail after an internal rewrite that preserves behavior. Be cautious with:
 
-Name the specific edit, not a category. “Someone breaks validation” is not enough. “Someone inverts `!result.OK`” is specific.
+- Exact error strings when the contract is the error condition or type.
+- Stub arguments that do not affect the outcome.
+- Call counts that are not part of the contract.
+- Private state, implementation details, and incidental field values.
+- Mocks that prove only that a method was called.
 
-**2. Would a competent person plausibly make that change?**
+Ask: **Would this assertion fail if the implementation changed but the behavior stayed correct?** If so, remove it. Prefer returned results, persisted outcomes, emitted effects, error conditions, and other externally visible state.
 
-You can invent a bug for any line of code. That is why question 1 is not enough. The bug must be one a real person might ship, such as an inverted boolean, an off-by-one error, swapped arguments of the same type, a dropped error return, or a subtle edge case in logic that required thought. If you must strain to imagine the mistake, stop.
+## Usually skip these
 
-**3. Does this test sit on the path to that failure?**
+- **Change detectors:** fail on ordinary refactoring.
+- **Mirrors:** derive expected values from the implementation.
+- **Duplication:** repeat behavior already covered more cheaply elsewhere.
+- **Trivial targets:** getters, setters, constants, and pure forwarders.
+- **Glue tests:** exercise straight-line orchestration without protecting a real risk.
+- **Coverage tests:** exist only to raise a percentage.
+- **Framework or dependency tests:** verify behavior owned by someone else.
 
-Trace the named failure from cause to consequence. Then check whether the test intercepts that path.
-
-A test of a pure function does not guard wiring around that function. Wiring includes whether the function is called, whether its error reaches the exit code, and whether the correct dependency is passed. A test that misses the wiring guards the part that was easiest to inspect.
-
-If the test does not sit on the path, write the test that does or write none.
-
-**4. Is the failure silent on the common path?**
-
-Loud failures need fewer tests. If the bug would fail on the next deploy, request, or local run with a clear message where someone is already looking, the feedback loop already exists. Tests matter most when failure is quiet, such as plausible wrong results, slowly corrupted data, or a guard that stops guarding unnoticed.
-
-Ask about the common case, not the rare case. Would the bug announce itself on the next normal run?
-
-Inverted guards often fail loudly. A guard exists for the exception, so the common path passes. Inverting it makes ordinary runs error immediately. The rare branch remains dangerous, but the loud failure exposes the mistake first.
-
-A test whose named failure would break the build immediately and noisily is a test for a bug that already reports itself.
-
-If a test misses any question, it does not earn its place. Delete it during review.
-
-Run the gate once per bug and once per test case. Do not name several candidate bugs and let the strongest one justify all of them. Each bug must clear all four questions. A test case survives only if at least one bug clears the gate through that case. Judge the file as independent claims, because that is what it contains.
-
-## Assertions
-
-A worthwhile test can still assert the wrong things. Remove every assertion that would fail under a behavior-preserving edit.
-
-- **Exact error strings.** `ErrorContains(err, "validation failed: [migration 7]")` couples the test to formatting and default-value rendering. Assert the condition, error type, or offending item instead.
-- **Stub arguments** that do not affect behavior.
-- **Call counts** that are not part of the contract.
-- **Private state**, internal structure, and field values the caller cannot observe.
-
-Ask this diagnostic question. Would the assertion fail if you rewrote the internals but kept the behavior? If yes, it detects an implementation change. Remove it.
-
-## Unnecessary tests
-
-Delete or refuse to write these tests.
-
-- **Change detector.** Fails on any refactor.
-- **Mirror.** Derives the expected value from the code under test.
-- **Mock assertion.** Checks that a double was called, not that the outcome occurred.
-- **Duplication.** A cheaper test at another layer already covers the behavior.
-- **Trivial target.** Tests a getter, setter, constant, or pure forwarder.
-- **Glue test.** Exercises straight-line orchestration while the real risk is the surrounding wiring.
-- **Coverage test.** Exists only to raise a number.
-- **Framework, language, or third-party test.** Verifies behavior someone else owns.
-
-## Extraction is not justification
-
-“I extracted this function so it could be tested” proves only that testing became possible. It does not prove that testing became worthwhile.
-
-Run the gate on the extracted function as if it had always existed. If extraction moved the logic out of the risky path and left the risk in the caller, it made the suite worse.
-
-## Excuses to reject
-
-- **“It raises coverage.”** Coverage measures whether code ran.
-- **“It documents the behavior.”** A test that cannot fail documents nothing. Write a comment.
-- **“Tests are cheap.”** A suite of cheap, useless tests is expensive.
-- **“Simple code still needs a test.”** Only when it has a real, silent failure mode.
-- **“The blast radius is huge.”** A test that misses the risk does not shrink it.
-- **“It is cheap enough not to fuss over.”** Three lines of noise still fail on every refactor.
-- **“A dependency just changed this code.”** Recompile, then test only what survived the compiler.
-- **“I already wrote it.”** Sunk cost does not justify maintenance cost.
-- **“It is TDD, so I have to.”** TDD rewards tests that catch bugs.
-
-## Final rule
-
-Name the bug. Show that a competent person could make it. Show that the test intercepts it. Show that it would otherwise fail quietly. Four answers, in writing, or no test.
-
-## Sources
-
-- Kent Beck: pay for code that works, not tests.
-- Sandi Metz: test the interface, not the implementation.
-- Ian Cooper: test requirements, not methods.
-- Martin Fowler, *Mocks Aren't Stubs*: mockist tests couple to implementation and break on refactor. Fowler presents both schools fairly and calls himself a classicist by habit.
-- Kent C. Dodds: the Testing Trophy, confidence per cost.
-- JB Rainsberger: integrated tests as duplication.
-- Vladimir Khorikov, *Unit Testing*: maximize sensitivity and minimize brittleness.
+Extracting a function makes testing possible, not worthwhile. Run the gate against the extracted logic and its caller. If extraction leaves the risky wiring untested, it made the suite worse.
