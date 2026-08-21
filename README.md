@@ -11,11 +11,11 @@ the open `SKILL.md` format and can be installed with
 | `crosspoint-reader` | Connecting to and managing content on a CrossPoint Reader e-ink device | Uses the device's unauthenticated local web server. Confirms risky changes before sending them. |
 | `defuddle` | Extracting the useful content from a webpage or HTML file | Requires the `defuddle` CLI. Reads pages and local files. |
 | `linear-tickets` | Reading a Linear issue and preparing a Git worktree | Requires an authenticated Linear MCP connection. Creates a local branch or worktree only after confirming the setup. |
-| `worktrunk` | Managing and navigating git worktrees, and running parallel AI agents in worktrees | Requires the `wt` CLI. Creates, lists, removes, and merges worktrees. |
-| `worth-testing` | Deciding whether a test is worth writing or keeping, and pushing back on unnecessary tests | Reads the test and the change under test. Presses the agent to delete or skip tests that cannot name the bug they catch.
+| `subagent-tuning` | Choosing models and reasoning effort for delegated work | Uses the harness's available subagent, model, provider, and effort controls. |
+| `worktrunk` | Managing git worktrees with Worktrunk (`wt`) | Requires the `wt` CLI. Manages worktrees and may generate templatized `.env` files and LLM summaries. |
+| `worth-testing` | Deciding whether a test is worth writing or keeping, and pushing back on unnecessary tests | Reads the test and the change under test. Presses the agent to delete or skip tests that cannot name the bug they catch. |
 | `write-good-commit-messages` | Writing a Git commit message | Reads project conventions and Git history. |
-| `write-naturally` | Revising prose for clarity, specificity, and an intended voice | Does not imitate a named person or try to evade AI detection. |
-| `write-simply` | Cutting inflated or overly polished prose down to its point | Produces shorter, more literal writing without changing its meaning. |
+| `write-well` | Writing and revising clear, concise prose | Simplifies existing text and removes AI-style writing. |
 
 ## Install
 
@@ -25,7 +25,7 @@ Install one skill for selected agents at user scope:
 npx skills add mono-koto/skills \
   --global \
   --agent codex claude-code gemini-cli \
-  --skill write-naturally
+  --skill write-well
 ```
 
 Install every skill for selected agents:
@@ -49,7 +49,7 @@ From a checkout of this repository, install a local skill with a live symlink:
 npx skills add . \
   --global \
   --agent codex claude-code \
-  --skill write-naturally
+  --skill write-well
 ```
 
 Inspect discovered skills:
@@ -69,7 +69,7 @@ Remove a global skill:
 ```sh
 npx skills remove --global \
   --agent codex claude-code \
-  write-naturally \
+  write-well \
   --yes
 ```
 
