@@ -1,9 +1,13 @@
 ---
 name: write-well
-description: Write clearly, concisely, and effectively. Always use this skill when writing or editing prose, including commit messages, pull requests, comments, memos, technical docs.
+description: Write clearly, concisely, and effectively. Use when the user explicitly asks for help with writing or editing, or when producing text that other people will read — commit messages, pull requests, code comments, committed docs, READMEs, release notes, issue replies. Do not use for ordinary replies to the user, or internal agent artifacts like notes, handoff plans, and specs.
 ---
 
 # Write Well
+
+## Scope
+
+This skill is for text that other people will read (commits, PRs, comments, docs, release notes, issue replies) or for explicit user requests. Ordinary replies to the user and internal agent artifacts (handoff plans, specs, notes) do not need it.
 
 ## Subareas
 
